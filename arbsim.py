@@ -1,7 +1,7 @@
+# Uses pygame-ce
 import pygame
 import math
 import time
-
 class sim:
     def __init__(self, size=800):
         """
