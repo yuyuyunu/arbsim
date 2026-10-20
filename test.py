@@ -1,5 +1,3 @@
-# Uses pygame-ce
-import pygame
 import arbsim
 
 sim = arbsim.sim()
