@@ -1,7 +1,7 @@
-# Uses pygame-ce
 import pygame
 import math
 import time
+
 class sim:
     def __init__(self, size=800):
         """
@@ -134,9 +134,10 @@ class sim:
         Gets the current operational status of the drone.
         
         Returns:
-            tuple: (is_armed (bool), is_flying (bool)).
+            tuple: (is_armed (bool), is_flying (bool), is_landing (bool)).
         """
-        return self.armed, self.flying
+        is_landing = self.flying and self.target_z == 0.0
+        return self.armed, self.flying, is_landing
 
     def send_land_command(self):
         """
@@ -236,12 +237,15 @@ class sim:
             shadow_offset = int(self.z * (1.5 * (self.width/800))) # Scale shadow offset with screen size
             pygame.draw.circle(self.screen, (20, 20, 20), (px + shadow_offset, py + shadow_offset), int(8 * (self.width/800)))
 
-        if self.flying:
-            color = (0, 200, 255)
+        is_landing = self.flying and self.target_z == 0.0
+        if is_landing:
+            color = (255, 165, 0) # Orange when landing
+        elif self.flying:
+            color = (0, 200, 255) # Blue when flying
         elif self.armed:
-            color = (0, 255, 0)
+            color = (0, 255, 0)   # Green when armed
         else:
-            color = (255, 0, 0)
+            color = (255, 0, 0)   # Red when disarmed
 
         # Scale drone base size with screen size to keep visual proportions identical
         base_size = 8.0 * (self.width / 800.0)
@@ -253,8 +257,16 @@ class sim:
             end_y = py + int(self.vy * self.ppm)
             pygame.draw.line(self.screen, (255, 255, 255), (px, py), (end_x, end_y), 2)
 
+        # Build UI Telemetry String
+        if is_landing:
+            flight_state_text = 'LANDING'
+        elif self.flying:
+            flight_state_text = 'FLYING'
+        else:
+            flight_state_text = 'ON GROUND'
+
         lines = [
-            f"State: {'ARMED' if self.armed else 'DISARMED'} | {'FLYING' if self.flying else 'ON GROUND'}",
+            f"State: {'ARMED' if self.armed else 'DISARMED'} | {flight_state_text}",
             f"Pos: X:{self.x:.1f}m  Y:{self.y:.1f}m  Z:{self.z:.1f}m",
             f"Vel: VX:{self.vx:.1f}m/s  VY:{self.vy:.1f}m/s",
             f"Trail Recording: {'ON' if self.record_trail else 'OFF'}"
