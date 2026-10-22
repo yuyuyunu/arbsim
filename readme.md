@@ -6,6 +6,8 @@ import arbsim
 # Initialize the simulator (default size is 800x800)
 sim = arbsim.sim()
 
+sim.set_trail(True)
+
 # The Core Loop
 while sim.is_running():
     # 1. Read state
